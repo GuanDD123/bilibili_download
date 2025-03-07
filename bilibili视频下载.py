@@ -10,7 +10,7 @@ from asyncio import gather, run, create_task
 from aiohttp import ClientSession, ClientTimeout
 from ffmpeg import input as ffmpeg_input, output as ffmpeg_output, run as ffmpeg_run
 
-SAVE_DIR = '/home/sika/视频/bilibili/Download'
+SAVE_DIR = '/home/sika/视频/bilibili'
 YELLOW = 'bright_yellow'
 GREEN = 'bright_green'
 CYAN = 'bright_cyan'
