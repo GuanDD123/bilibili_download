@@ -83,15 +83,23 @@ class DownloadBiLiBiLi:
             info_dict['data']['dash']['video'][index]['baseUrl'],
             info_dict['data']['dash']['video'][index]['backupUrl'][0]
         )
+        try:
+            self.video_type = '.'+info_dict['data']['dash']['video'][index]['mimeType'].lstrip('video/')
+        except KeyError:
+            self.video_type = '.'+info_dict['data']['dash']['video'][index]['mime_type'].lstrip('video/')
         self.audio_urls = (
             info_dict['data']['dash']['audio'][0]['baseUrl'],
             info_dict['data']['dash']['audio'][0]['backupUrl'][0],
         )
+        try:
+            self.audio_type = '.'+info_dict['data']['dash']['audio'][0]['mimeType'].lstrip('audio/')
+        except KeyError:
+            self.audio_type = '.'+info_dict['data']['dash']['audio'][0]['mime_type'].lstrip('audio/')
 
     async def _download_merge(self) -> None:
-        video_path = self.save_path.joinpath(self.title+'_video.mp4')
-        audio_path = self.save_path.joinpath(self.title+'_audio.mp3')
-        filepath = self.save_path.joinpath(self.title+'.mp4')
+        video_path = self.save_path.joinpath(self.title+'_video'+self.video_type)
+        audio_path = self.save_path.joinpath(self.title+'_audio'+self.audio_type)
+        filepath = self.save_path.joinpath(self.title+self.video_type)
         with self._progress_object() as progress:
             tasks = [
                 create_task(self._download_video_or_audio(video_path, self.video_urls, progress)),
@@ -147,7 +155,8 @@ class DownloadBiLiBiLi:
             progress.add_task('正在合并音视频', total=None)
             input_video = ffmpeg_input(str(video_path.absolute()))
             input_audio = ffmpeg_input(str(audio_path.absolute()))
-            output = ffmpeg_output(input_video, input_audio, str(filepath.absolute()), vcodec='copy', acodec='aac')
+            output = ffmpeg_output(input_video, input_audio, str(filepath.absolute()),
+                                   vcodec='copy', acodec='copy')
             ffmpeg_run(output, quiet=True)
             print(f'[{GREEN}]{filepath} 合并完成')
             video_path.unlink()
